@@ -2,7 +2,7 @@
 
 ## Key Points
 ## 1) Firebase Authentication
-## 2) Using firebase Realtime Database for user details
+## 2) Using firebase Realtime Database for storing user details
 ## 3) Using Google Maps API to fetch Map,Places details
 ## 4) Book cab
 ## 5) Calculating fares by distance and time
