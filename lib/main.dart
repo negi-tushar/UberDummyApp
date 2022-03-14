@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:uberdummy/data_provider/appdata_provider.dart';
 import 'package:uberdummy/screens/mainpage.dart';
@@ -11,6 +12,10 @@ import 'screens/loginpage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  // SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+  //   statusBarColor: Colors.transparent,
+  // systemStatusBarContrastEnforced: true,
+  // ));
   runApp(const MyApp());
 }
 
@@ -29,14 +34,14 @@ class MyApp extends StatelessWidget {
           fontFamily: "Brand-Regular",
           primarySwatch: Colors.blue,
         ),
-        initialRoute: LoginPage.id,
+        initialRoute: HomePage.id,
         routes: {
           RegistrationPage.id: (context) => RegistrationPage(),
           LoginPage.id: (context) => LoginPage(),
           HomePage.id: (context) => const HomePage(),
           SearchScreen.id: (context) => const SearchScreen(),
         },
-        home: LoginPage(),
+        // home: LoginPage(),
       ),
     );
   }

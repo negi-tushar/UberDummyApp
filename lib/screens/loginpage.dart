@@ -20,15 +20,17 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     void showSnackBar(String title, context) {
       final snackbar = SnackBar(
+          backgroundColor: Colors.red,
           content: Text(
-        title,
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 15.0),
-      ));
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 15.0),
+          ));
       ScaffoldMessenger.of(context).showSnackBar(snackbar);
     }
 
     Future<void> signIn() async {
+      print('hello');
       showDialog(
         context: context,
         builder: (BuildContext context) => const ProgressDialog(

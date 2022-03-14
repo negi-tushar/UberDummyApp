@@ -135,6 +135,7 @@ class _HomePageState extends State<HomePage>
         )),
       ),
       body: SafeArea(
+        // margin: const EdgeInsets.only(top: 20),
         child: Stack(
           children: [
             GoogleMap(
@@ -418,7 +419,13 @@ class _HomePageState extends State<HomePage>
                           const SizedBox(
                             height: 13,
                           ),
-                          const defaultButton(title: 'Request Cab')
+                          ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                primary:
+                                    const Color.fromARGB(255, 33, 172, 105),
+                              ),
+                              onPressed: () {},
+                              child: const Text('Request Cab'))
                         ]),
                   ),
                 ),
