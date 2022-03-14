@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "955612849446",
+    "firebase_url": "https://saarthi-41630-default-rtdb.firebaseio.com",
+    "project_id": "saarthi-41630",
+    "storage_bucket": "saarthi-41630.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955612849446:android:e04e70fe7160ec03514de7",
+        "android_client_info": {
+          "package_name": "com.example.uberdummy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955612849446-ns6f16j6i03n7g3e9skuho0uaocclk8r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBP0Dm8VBae2ieATHy_eDN1nmyk6cXTsok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955612849446-ns6f16j6i03n7g3e9skuho0uaocclk8r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
