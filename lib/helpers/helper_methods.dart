@@ -1,12 +1,13 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:uberdummy/data_provider/appdata_provider.dart';
 import 'package:uberdummy/datamodel/address_model.dart';
 import 'package:uberdummy/datamodel/direction_model.dart';
+import 'package:uberdummy/datamodel/user_model.dart';
 import 'package:uberdummy/globalvariables.dart';
 import 'package:uberdummy/helpers/request_helper.dart';
 
@@ -23,6 +24,7 @@ class HelperMethods {
         "https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$apiKey";
 
     var response = await Requesthelper.getresposnse(url);
+    print('response->$response');
     if (response != 'failed') {
       pickAdress = response['results'][0]['formatted_address'];
 
@@ -45,6 +47,7 @@ class HelperMethods {
     var url =
         "https://maps.googleapis.com/maps/api/directions/json?destination=${destinationPosition.latitude},${destinationPosition.longitude}&origin=${startPostion.latitude},${startPostion.longitude}&key=$apiKey&mode=driving";
     var response = await Requesthelper.getresposnse(url);
+
     if (response == 'failed') {
       return null;
     }
@@ -68,5 +71,20 @@ class HelperMethods {
     // var totalFare =
     //     20 + (details.durationValue) + ((details.distanceValue / 1000) * 12);
     return totalFare.truncate();
+  }
+
+  static void getUserDetails() {
+    final firebase_instance = FirebaseAuth.instance;
+    var uid = firebase_instance.currentUser!.uid;
+
+    DatabaseReference databaseReference =
+        FirebaseDatabase.instance.reference().child('users/$uid');
+    // print('Here1--->');
+    databaseReference.once().then((DataSnapshot snap) {
+      if (snap.value != null) {
+        currentuser = Users.fromSnapshot(snap);
+        debugPrint(currentuser!.email);
+      }
+    });
   }
 }

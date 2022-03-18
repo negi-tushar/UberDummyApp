@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -9,7 +11,9 @@ import 'package:provider/provider.dart';
 import 'package:uberdummy/constants.dart';
 import 'package:uberdummy/data_provider/appdata_provider.dart';
 import 'package:uberdummy/datamodel/direction_model.dart';
+import 'package:uberdummy/globalvariables.dart';
 import 'package:uberdummy/helpers/helper_methods.dart';
+import 'package:uberdummy/screens/bookCabScreen.dart';
 import 'package:uberdummy/screens/search_screen.dart';
 import 'package:uberdummy/widgets/button.dart';
 import 'package:uberdummy/widgets/divider.dart';
@@ -31,6 +35,7 @@ class _HomePageState extends State<HomePage>
 
   double searchSheetheight = Platform.isIOS ? 300 : 275;
   double rideSheetheight = 0;
+  double bookCabHeight = 0;
   DirectionDetails _fetchedDirectionDetails = DirectionDetails(
       distanceText: '',
       distanceValue: 0,
@@ -52,6 +57,15 @@ class _HomePageState extends State<HomePage>
       searchSheetheight = 0;
       rideSheetheight = Platform.isIOS ? 240 : 220;
       mapBottomPadding = Platform.isIOS ? 240 : 220;
+    });
+  }
+
+  void showCabBookSheet() {
+    setState(() {
+      showDrawer = true;
+      rideSheetheight = 0;
+      bookCabHeight = Platform.isIOS ? 220 : 195;
+      mapBottomPadding = Platform.isIOS ? 200 : 190;
     });
   }
 
@@ -78,6 +92,14 @@ class _HomePageState extends State<HomePage>
     target: LatLng(50.601521, 22.732516),
     zoom: 14.4746,
   );
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    HelperMethods.getUserDetails();
+  }
+
   @override
   void dispose() {
     mapController.dispose();
@@ -134,305 +156,314 @@ class _HomePageState extends State<HomePage>
           ],
         )),
       ),
-      body: SafeArea(
-        // margin: const EdgeInsets.only(top: 20),
-        child: Stack(
-          children: [
-            GoogleMap(
-              padding: EdgeInsets.only(bottom: mapBottomPadding),
-              initialCameraPosition: _kGooglePlex,
-              mapType: MapType.normal,
-              myLocationEnabled: true,
-              polylines: _polylines,
-              myLocationButtonEnabled: true,
-              markers: _marker,
-              circles: _circle,
-              zoomControlsEnabled: true,
-              zoomGesturesEnabled: true,
-              compassEnabled: true,
+      body: Stack(
+        children: [
+          GoogleMap(
+            padding: EdgeInsets.only(bottom: mapBottomPadding),
+            initialCameraPosition: _kGooglePlex,
+            mapType: MapType.normal,
+            myLocationEnabled: true,
+            polylines: _polylines,
+            myLocationButtonEnabled: true,
+            markers: _marker,
+            circles: _circle,
+            zoomControlsEnabled: true,
+            zoomGesturesEnabled: true,
+            compassEnabled: true,
 
-              // myLocationEnabled: true,
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-                mapController = controller;
-                setState(() {
-                  mapBottomPadding = searchSheetheight;
-                });
-                getCurrentLocation();
-              },
-            ),
-            //menuButton
+            // myLocationEnabled: true,
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+              mapController = controller;
+              setState(() {
+                mapBottomPadding = searchSheetheight;
+              });
+              getCurrentLocation();
+            },
+          ),
+          //menuButton
 
-            Positioned(
-              right: 0,
-              left: 0,
-              bottom: 0,
-              child: AnimatedSize(
-                // vsync: this,
-                duration: const Duration(milliseconds: 150),
-                curve: Curves.easeIn,
-                child: Container(
-                  padding: const EdgeInsets.all(15.0),
-                  height: searchSheetheight,
-                  decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20.0),
-                        topRight: Radius.circular(20.0),
+          Positioned(
+            right: 0,
+            left: 0,
+            bottom: 0,
+            child: AnimatedSize(
+              // vsync: this,
+              duration: const Duration(milliseconds: 150),
+              curve: Curves.easeIn,
+              child: Container(
+                padding: const EdgeInsets.all(15.0),
+                height: searchSheetheight,
+                decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20.0),
+                      topRight: Radius.circular(20.0),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 20.0,
+                        spreadRadius: 0.5,
+                        //offset: Offset(0.7, 0.7),
+                      )
+                    ]),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Nice to see you ${currentuser!.fname},',
+                        style: const TextStyle(
+                          fontSize: 10.0,
+                        ),
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 20.0,
-                          spreadRadius: 0.5,
-                          //offset: Offset(0.7, 0.7),
-                        )
-                      ]),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Nice to see you!',
-                          style: TextStyle(
-                            fontSize: 10.0,
-                          ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      const Text(
+                        'Where are you going?',
+                        style: TextStyle(
+                          fontSize: 20.0,
                         ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        const Text(
-                          'Where are you going?',
-                          style: TextStyle(
-                            fontSize: 20.0,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        GestureDetector(
-                          onTap: (() async {
-                            var response = await Navigator.of(context)
-                                .pushNamed(SearchScreen.id);
-                            if (response == 'dropAddress') {
-                              showBottomSheet();
-                            }
-                          }),
-                          child: Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.0),
-                                color: Colors.white,
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 5.0,
-                                    spreadRadius: 0.5,
-                                    offset: Offset(0.7, 0.7),
-                                  )
-                                ]),
-                            child: Row(
-                              children: const [
-                                Icon(
-                                  Icons.search,
-                                  color: Colors.blue,
-                                ),
-                                SizedBox(
-                                  width: 10.0,
-                                ),
-                                Text(
-                                  'Search destination',
-                                  style: TextStyle(
-                                    fontSize: 13.0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 15.0,
-                        ),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.home_outlined,
-                              color: Colors.blue,
-                            ),
-                            const SizedBox(
-                              width: 10.0,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text(
-                                  'Home',
-                                  style: TextStyle(
-                                    fontSize: 16.0,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text(
-                                  'Your home location',
-                                  style: TextStyle(
-                                    fontSize: 10.0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 7.0,
-                        ),
-                        const divider(),
-                        const SizedBox(
-                          height: 7.0,
-                        ),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.work_outlined,
-                              color: Colors.blue,
-                            ),
-                            const SizedBox(
-                              width: 10.0,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text(
-                                  'Work',
-                                  style: TextStyle(
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                                Text(
-                                  'Your work location',
-                                  style: TextStyle(
-                                    fontSize: 10.0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 15,
-              top: 20,
-              child: GestureDetector(
-                onTap: () {
-                  if (showDrawer) {
-                    scaffoldKey.currentState?.openDrawer();
-                  } else {
-                    resetMap();
-                  }
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.white,
-                      boxShadow: const [
-                        BoxShadow(
-                          blurRadius: 10.0,
-                          spreadRadius: 0.3,
-                          offset: Offset(0.5, 0.3),
-                        )
-                      ]),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      showDrawer ? Icons.menu : Icons.arrow_back_ios_new_sharp,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            Positioned(
-              width: MediaQuery.of(context).size.width,
-              bottom: 0,
-              // top: 0,
-              child: AnimatedSize(
-                // vsync: this,
-                duration: const Duration(milliseconds: 150),
-                curve: Curves.easeIn,
-                child: Container(
-                  height: rideSheetheight,
-                  decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(23),
-                          topRight: Radius.circular(23))),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 20.0),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Container(
-                            color: const Color.fromARGB(172, 158, 252, 174),
-                            child: ListTile(
-                              leading: const Icon(
-                                Icons.car_rental_rounded,
-                                size: 40,
+                      ),
+                      const SizedBox(
+                        height: 20.0,
+                      ),
+                      GestureDetector(
+                        onTap: (() async {
+                          var response = await Navigator.of(context)
+                              .pushNamed(SearchScreen.id);
+                          if (response == 'dropAddress') {
+                            showBottomSheet();
+                          }
+                        }),
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              color: Colors.white,
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 5.0,
+                                  spreadRadius: 0.5,
+                                  offset: Offset(0.7, 0.7),
+                                )
+                              ]),
+                          child: Row(
+                            children: const [
+                              Icon(
+                                Icons.search,
                                 color: Colors.blue,
                               ),
-                              title: const Text(
-                                'Taxi',
+                              SizedBox(
+                                width: 10.0,
+                              ),
+                              Text(
+                                'Search destination',
                                 style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13.0,
                                 ),
                               ),
-                              subtitle:
-                                  Text(_fetchedDirectionDetails.distanceText),
-                              trailing: Text(
-                                '₹ ${HelperMethods.getEstimatedFares(_fetchedDirectionDetails)}'
-                                    .toString(),
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              //    dense: true,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 13,
-                          ),
-                          Row(
-                            children: const [
-                              Icon(Icons.money),
-                              Text('Cash'),
-                              Icon(CupertinoIcons.down_arrow),
                             ],
                           ),
-                          const SizedBox(
-                            height: 13,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 15.0,
+                      ),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.home_outlined,
+                            color: Colors.blue,
                           ),
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                primary:
-                                    const Color.fromARGB(255, 33, 172, 105),
+                          const SizedBox(
+                            width: 10.0,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text(
+                                'Home',
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              onPressed: () {},
-                              child: const Text('Request Cab'))
-                        ]),
+                              Text(
+                                'Your home location',
+                                style: TextStyle(
+                                  fontSize: 10.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 7.0,
+                      ),
+                      const divider(),
+                      const SizedBox(
+                        height: 7.0,
+                      ),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.work_outlined,
+                            color: Colors.blue,
+                          ),
+                          const SizedBox(
+                            width: 10.0,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text(
+                                'Work',
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                              Text(
+                                'Your work location',
+                                style: TextStyle(
+                                  fontSize: 10.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+          Positioned(
+            left: 15,
+            top: 20,
+            child: GestureDetector(
+              onTap: () {
+                if (showDrawer) {
+                  scaffoldKey.currentState?.openDrawer();
+                } else {
+                  resetMap();
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white,
+                    boxShadow: const [
+                      BoxShadow(
+                        blurRadius: 10.0,
+                        spreadRadius: 0.3,
+                        offset: Offset(0.5, 0.3),
+                      )
+                    ]),
+                child: CircleAvatar(
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    showDrawer ? Icons.menu : Icons.arrow_back_ios_new_sharp,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          Positioned(
+            width: MediaQuery.of(context).size.width,
+            bottom: 0,
+            // top: 0,
+            child: AnimatedSize(
+              // vsync: this,
+              duration: const Duration(milliseconds: 150),
+              curve: Curves.easeIn,
+              child: Container(
+                height: rideSheetheight,
+                decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(23),
+                        topRight: Radius.circular(23))),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10, horizontal: 20.0),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          color: const Color.fromARGB(172, 158, 252, 174),
+                          child: ListTile(
+                            leading: const Icon(
+                              Icons.car_rental_rounded,
+                              size: 40,
+                              color: Colors.blue,
+                            ),
+                            title: const Text(
+                              'Taxi',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle:
+                                Text(_fetchedDirectionDetails.distanceText),
+                            trailing: Text(
+                              '₹ ${HelperMethods.getEstimatedFares(_fetchedDirectionDetails)}'
+                                  .toString(),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            //    dense: true,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 13,
+                        ),
+                        Row(
+                          children: const [
+                            Icon(Icons.money),
+                            Text('Cash'),
+                            Icon(CupertinoIcons.down_arrow),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 13,
+                        ),
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: const Color.fromARGB(255, 33, 172, 105),
+                            ),
+                            onPressed: () {
+                              showCabBookSheet();
+                              setRideRequest(context);
+                            },
+                            child: const Text('Request Cab'))
+                      ]),
+                ),
+              ),
+            ),
+          ),
+
+          Positioned(
+              width: MediaQuery.of(context).size.width,
+              bottom: 0,
+              child: BookCab(
+                reset: () {
+                  resetMap();
+                },
+                height: bookCabHeight,
+              )),
+        ],
       ),
     );
   }
@@ -444,6 +475,7 @@ class _HomePageState extends State<HomePage>
       _marker.clear();
       _circle.clear();
       rideSheetheight = 0;
+      bookCabHeight = 0;
       searchSheetheight = Platform.isIOS ? 300 : 275;
       mapBottomPadding = Platform.isIOS ? 280 : 270;
       showDrawer = true;
@@ -549,6 +581,34 @@ class _HomePageState extends State<HomePage>
         _circle.add(dropCircle);
       });
     }
+  }
+
+  void setRideRequest(BuildContext context) {
+    rideRef = FirebaseDatabase.instance.reference().child('rideRequest').push();
+    var pickup = Provider.of<AppData>(context, listen: false).pickupAddress;
+    var drop = Provider.of<AppData>(context, listen: false).dropAddress;
+
+    Map pickupLocation = {
+      'latitude': pickup!.lat,
+      'longitude': pickup.long,
+    };
+    Map dropLocation = {
+      'latitude': drop!.lat,
+      'longitude': drop.long,
+    };
+
+    Map rideDetails = {
+      'TimeStamp': DateTime.now().toIso8601String(),
+      'User_id': currentuser?.id,
+      'UseName': currentuser?.fname,
+      'PickupAddress': pickup.placeName,
+      'DropAddress': drop.placeName,
+      'PayentMethod': 'Cash',
+      'DriverId': 'waiting',
+      'pickupLocation': pickupLocation,
+      'dropLocation': dropLocation,
+    };
+    rideRef.set(rideDetails);
   }
 }
 

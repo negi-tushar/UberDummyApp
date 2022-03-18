@@ -45,7 +45,7 @@ class RegistrationPage extends StatelessWidget {
       showDialog(
         context: context,
         builder: (BuildContext context) => const ProgressDialog(
-          status: 'Logging you In',
+          status: 'Creating Account',
         ),
       );
       try {
@@ -54,11 +54,11 @@ class RegistrationPage extends StatelessWidget {
           password: passwordController.text,
         );
         Navigator.pop(context);
-        if (user != null) {
+        if (user.user != null) {
           DatabaseReference newUserRef = FirebaseDatabase.instance
               .reference()
               .child('users/${auth.currentUser!.uid}');
-
+          print('helloooooooooooooo');
           //Map data to database
           Map userMap = {
             'fullName': nameController.text,
@@ -66,11 +66,11 @@ class RegistrationPage extends StatelessWidget {
             'phone': phoneController.text,
           };
           newUserRef.set(userMap);
+          Navigator.pop(context);
           Navigator.pushNamedAndRemoveUntil(
               context, HomePage.id, (route) => false);
         }
       } on FirebaseAuthException catch (e) {
-        Navigator.pop(context);
         showSnackBar(e.code, context);
       } catch (e) {
         print(e);
